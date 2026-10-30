@@ -1,0 +1,1273 @@
+{
+  "info": {
+    "_postman_id": "b7a6f7d2-4d8a-4a2e-9c7b-2f6e1a9d4c31",
+    "name": "EVAL_P1_Villa",
+    "description": "Colección de la Evaluación P1. Ejecutar con el entorno EVAL_P1_local y en el orden de las carpetas (00 a 03).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 · Autenticación",
+      "item": [
+        {
+          "name": "Register - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"newEmail\", `postman_${Date.now()}@example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Devuelve message\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property(\"message\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Postman\",\n  \"email\": \"{{newEmail}}\",\n  \"password\": \"user123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Login usuario nuevo - 200 (rol USER)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"El usuario nuevo tiene rol USER\", function () {",
+                  "  const token = pm.response.json().token;",
+                  "  const base64 = token.split(\".\")[1].replace(/-/g, \"+\").replace(/_/g, \"/\");",
+                  "  const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, \"=\");",
+                  "  const payload = JSON.parse(atob(padded));",
+                  "  pm.expect(payload.role).to.eql(\"USER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{newEmail}}\",\n  \"password\": \"user123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Register - 400 campos faltantes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sin-nombre@example.com\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Register - 400 email inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Correo Inválido\",\n  \"email\": \"correo-invalido\",\n  \"password\": \"user123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Register - 400 email duplicado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Paulo Galarza\",\n  \"email\": \"paulo.galarza@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Login USER - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body).to.have.property(\"token\");",
+                  "});",
+                  "pm.environment.set(\"userToken\", body.token);",
+                  "pm.environment.set(\"token\", body.token);",
+                  "const base64 = body.token.split(\".\")[1].replace(/-/g, \"+\").replace(/_/g, \"/\");",
+                  "const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, \"=\");",
+                  "const payload = JSON.parse(atob(padded));",
+                  "pm.environment.set(\"userId\", payload.id);",
+                  "pm.test(\"JWT con id y rol USER\", function () {",
+                  "  pm.expect(payload).to.have.property(\"id\");",
+                  "  pm.expect(payload.role).to.eql(\"USER\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jdvilla3@espe.edu.ec\",\n  \"password\": \"user123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Login ADMIN - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body).to.have.property(\"token\");",
+                  "});",
+                  "pm.environment.set(\"adminToken\", body.token);",
+                  "const base64 = body.token.split(\".\")[1].replace(/-/g, \"+\").replace(/_/g, \"/\");",
+                  "const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, \"=\");",
+                  "const payload = JSON.parse(atob(padded));",
+                  "pm.environment.set(\"adminId\", payload.id);",
+                  "pm.test(\"JWT con id y rol ADMIN\", function () {",
+                  "  pm.expect(payload).to.have.property(\"id\");",
+                  "  pm.expect(payload.role).to.eql(\"ADMIN\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"paulo.galarza@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Login - 400 credenciales inválidas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Mensaje Invalid email or password\", function () {",
+                  "  pm.expect(pm.response.json().error).to.eql(\"Invalid email or password\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jdvilla3@espe.edu.ec\",\n  \"password\": \"incorrecta\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Protected route - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/protected-route",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Protected route - 401 sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401 Unauthorized\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/protected-route",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Protected route - 403 token inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"403 Forbidden\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});",
+                  "pm.test(\"Mensaje Invalid token\", function () {",
+                  "  pm.expect(pm.response.json().error).to.eql(\"Invalid token\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer token-invalido" }
+            ],
+            "url": "{{baseUrl}}/api/auth/protected-route",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 · Administración",
+      "item": [
+        {
+          "name": "Crear horario - 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Devuelve el horario\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property(\"id\");",
+                  "  pm.expect(body).to.have.property(\"court\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"court\": \"Cancha Postman {{$timestamp}}\",\n  \"startTime\": \"20:00\",\n  \"endTime\": \"22:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/schedules",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear horario - 400 campos faltantes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"court\": \"Solo cancha\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/schedules",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear horario - 401 sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401 Unauthorized\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"court\": \"Cancha sin token\",\n  \"startTime\": \"20:00\",\n  \"endTime\": \"22:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/schedules",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Crear horario - 403 rol USER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"403 Forbidden\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"court\": \"Cancha con USER\",\n  \"startTime\": \"20:00\",\n  \"endTime\": \"22:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/schedules",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar reservas - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const bookings = pm.response.json();",
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(bookings).to.be.an(\"array\");",
+                  "  pm.expect(bookings.length).to.be.above(0);",
+                  "});",
+                  "pm.test(\"Cada reserva incluye user y schedule\", function () {",
+                  "  bookings.forEach(function (booking) {",
+                  "    pm.expect(booking).to.have.property(\"user\");",
+                  "    pm.expect(booking).to.have.property(\"schedule\");",
+                  "  });",
+                  "});",
+                  "const scheduleIds = [...new Set(bookings.map(function (booking) { return booking.scheduleId; }))];",
+                  "pm.environment.set(\"scheduleId\", scheduleIds[0] || \"\");",
+                  "pm.environment.set(\"otherScheduleId\", scheduleIds[1] || scheduleIds[0] || \"\");",
+                  "const adminId = Number(pm.environment.get(\"adminId\"));",
+                  "const userId = Number(pm.environment.get(\"userId\"));",
+                  "const adminBooking = bookings.find(function (booking) { return booking.userId === adminId; });",
+                  "const userBooking = bookings.find(function (booking) { return booking.userId === userId; });",
+                  "pm.environment.set(\"adminBookingId\", adminBooking ? adminBooking.id : 999999);",
+                  "pm.environment.set(\"userBookingId\", userBooking ? userBooking.id : 999999);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/admin/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar reservas - 401 sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401 Unauthorized\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/admin/bookings",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Listar reservas - 403 rol USER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"403 Forbidden\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/admin/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 · Reservas",
+      "item": [
+        {
+          "name": "Crear reserva - 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const base = Date.now() + 5 * 365 * 24 * 60 * 60 * 1000;",
+                  "pm.environment.set(\"bookingDate\", new Date(base).toISOString());",
+                  "pm.environment.set(\"bookingDate2\", new Date(base + 86400000).toISOString());",
+                  "pm.environment.set(\"bookingDate3\", new Date(base + 172800000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test(\"201 Created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"El userId sale del token\", function () {",
+                  "  pm.expect(String(body.userId)).to.eql(String(pm.environment.get(\"userId\")));",
+                  "});",
+                  "pm.environment.set(\"bookingId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate}}\",\n  \"scheduleId\": {{scheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear reserva - 400 horario ocupado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Mensaje El horario ya está ocupado\", function () {",
+                  "  pm.expect(pm.response.json().error).to.eql(\"El horario ya está ocupado\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate}}\",\n  \"scheduleId\": {{scheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear reserva - 401 sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401 Unauthorized\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate}}\",\n  \"scheduleId\": {{scheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Crear reserva ADMIN para bloqueo - 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test(\"201 Created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.environment.set(\"blockingBookingId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate3}}\",\n  \"scheduleId\": {{scheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reserva dueño - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Devuelve la reserva creada\", function () {",
+                  "  pm.expect(String(pm.response.json().id)).to.eql(String(pm.environment.get(\"bookingId\")));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reserva ADMIN - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reserva ajena - 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"403 Forbidden\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{adminBookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reserva inexistente - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/999999",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reserva - 401 sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401 Unauthorized\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "PUT reserva dueño - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Actualiza fecha y horario\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(String(body.scheduleId)).to.eql(String(pm.environment.get(\"otherScheduleId\")));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate2}}\",\n  \"scheduleId\": {{otherScheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT reserva - 400 horario ocupado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Mensaje El horario ya está ocupado\", function () {",
+                  "  pm.expect(pm.response.json().error).to.eql(\"El horario ya está ocupado\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate3}}\",\n  \"scheduleId\": {{scheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT reserva ajena - 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"403 Forbidden\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate2}}\",\n  \"scheduleId\": {{scheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings/{{adminBookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT reserva inexistente - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{bookingDate2}}\",\n  \"scheduleId\": {{scheduleId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/bookings/999999",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE reserva ajena - 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"403 Forbidden\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{adminBookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE reserva inexistente - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/999999",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE reserva dueño - 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", function () {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reserva borrada - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{bookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE reserva de bloqueo ADMIN - 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", function () {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/bookings/{{blockingBookingId}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · Usuarios",
+      "item": [
+        {
+          "name": "GET reservas del usuario dueño - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const bookings = pm.response.json();",
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(bookings).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Cada reserva incluye schedule\", function () {",
+                  "  bookings.forEach(function (booking) {",
+                  "    pm.expect(booking).to.have.property(\"schedule\");",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reservas del usuario ADMIN - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reservas de otro usuario - 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"403 Forbidden\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{adminId}}/bookings",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET reservas del usuario - 401 sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"401 Unauthorized\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}/bookings",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3077" }
+  ]
+}
