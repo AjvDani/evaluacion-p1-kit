@@ -31,6 +31,15 @@ npm run dev
 
 El servidor queda en `http://localhost:3077` (según `PORT` en `.env`). Para producción local: `npm start`.
 
+### Servicios Docker
+
+| Servicio | URL / puerto | Credenciales |
+|---|---|---|
+| PostgreSQL | `localhost:5434` | `espe_user` / `espe_password` · BD `espe_db` |
+| pgAdmin | `http://localhost:5051` | `admin@espe.com` / `admin_password` |
+
+La `DATABASE_URL` de `.env` debe apuntar a `localhost:5434`.
+
 ### Datos del seed
 
 | Rol | Email | Contraseña |
